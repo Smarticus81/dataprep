@@ -1,0 +1,5 @@
+Complaint #,Date Received,Event Description,Serious Event,Reporting Country,Model No.,Harm Description,IMDRF Code,Patient Result,MFR Reportable,Lot Number
+CMP-2024-001,20/01/2024,Device failed to maintain pressure during procedure,Y,GB,SFC-200,Delayed treatment,2682,Resolved,Y,LOT-A001
+CMP-2024-002,05/02/2024,Packaging integrity issue noted on arrival,N,DE,SFC-200,None,2993,No injury,N,LOT-A002
+CMP-2024-003,18/02/2024,Unusual resistance during catheter advancement,n,FR,SFC-200,Minor discomfort,2682,Resolved,no,LOT-A001
+CMP-2024-004,10/03/2024,Device tip detached during use,YES,GB,SFC-200,Patient injury - minor laceration,2993,Resolved,YES,LOT-A003

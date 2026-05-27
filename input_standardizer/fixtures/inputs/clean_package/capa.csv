@@ -1,0 +1,3 @@
+capa_number,title,status,open_date,close_date,root_cause,type,target_completion_date,effectiveness
+CAPA-2024-001,Pressure seal improvement,closed,2024-01-25,2024-03-15,Seal material degradation under temperature variation,corrective,2024-03-31,Verified - no recurrence in 90-day window
+CAPA-2024-002,Tip retention enhancement,in_progress,2024-03-12,,Bonding process insufficient for high-torque applications,corrective,2024-06-30,

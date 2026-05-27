@@ -1,0 +1,19 @@
+{
+  "device trade name": "SurgiFlow Catheter",
+  "description": "A sterile, single-use catheter designed for vascular access procedures in interventional cardiology and radiology settings.",
+  "intended use": "To provide vascular access for the delivery of therapeutic agents, placement of stents, and diagnostic sampling in cardiovascular procedures.",
+  "indications": "Indicated for use in adult patients undergoing coronary angiography, PCI, and peripheral vascular interventions.",
+  "patient population": "Adult patients (18 years and over) requiring vascular access.",
+  "intended users": "Interventional cardiologists and radiologists with specialist training.",
+  "udi-di": "SurgiFlow Catheter Family",
+  "model no": "SFC-200, SFC-201, SFC-202",
+  "mdr class": "Class IIb, Rule 8",
+  "notified body": "BSI Group The Netherlands BV, NB 2797",
+  "sterile": "EO sterilised",
+  "single-use": "Yes - single use only",
+  "contraindications": "Known hypersensitivity to device materials; severe peripheral vascular disease.",
+  "uk class": "Class IIb, Rule 8",
+  "ce marking date": "2019-06-15",
+  "cer number": "CER-SFC-2024-v3.1",
+  "cer date": "2024-01-10"
+}

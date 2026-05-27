@@ -1,0 +1,36 @@
+{
+  "hazards": [
+    {
+      "hazard_id": "H-001",
+      "hazard_description": "Catheter tip detachment during withdrawal",
+      "harm": "Vessel injury, retained foreign body requiring surgical retrieval",
+      "severity": "4",
+      "probability_before": "3",
+      "risk_level_before": "High",
+      "risk_control": "Enhanced tip bonding process; torque testing added to QC protocol",
+      "probability_after": "1",
+      "risk_level_after": "Low",
+      "expected_rate": "0.0001",
+      "max_expected_rate": "0.0005",
+      "hazard_category": "Mechanical failure",
+      "imdrf_code": "2993",
+      "medical_device_problem": "Device component separation"
+    },
+    {
+      "hazard_id": "H-002",
+      "hazard_description": "Pressure seal failure during contrast injection",
+      "harm": "Air embolism, contrast extravasation",
+      "severity": "3",
+      "probability_before": "2",
+      "risk_level_before": "Medium",
+      "risk_control": "Seal material upgraded; temperature range testing expanded",
+      "probability_after": "1",
+      "risk_level_after": "Low",
+      "expected_rate": "0.00005",
+      "max_expected_rate": "0.0002",
+      "hazard_category": "Seal/connection failure",
+      "imdrf_code": "2682",
+      "medical_device_problem": "Fluid/gas leakage"
+    }
+  ]
+}

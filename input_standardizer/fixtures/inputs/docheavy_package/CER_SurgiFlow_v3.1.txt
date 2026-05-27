@@ -1,0 +1,65 @@
+CLINICAL EVALUATION REPORT
+Document Number: CER-SFC-2024-v3.1
+Device: SurgiFlow Catheter
+Manufacturer: MedDevice International Ltd
+Date: 2024-01-10
+
+1. DEVICE DESCRIPTION
+The SurgiFlow Catheter (model SFC-200) is a sterile, single-use vascular catheter
+manufactured from medical-grade polymer. It is designed for vascular access procedures
+in interventional cardiology and radiology settings. The device has a proximal hub,
+flexible shaft, and atraumatic distal tip with hydrophilic coating.
+
+2. INTENDED PURPOSE
+The SurgiFlow Catheter is intended to provide vascular access for the delivery of
+therapeutic agents, placement of stents, and diagnostic sampling in cardiovascular
+procedures. The device is intended for use in adult patients undergoing coronary
+angiography, percutaneous coronary intervention (PCI), and peripheral vascular
+interventions.
+
+3. INDICATIONS FOR USE
+Indicated for use in adult patients (18 years and over) undergoing:
+- Coronary angiography
+- Percutaneous coronary intervention (PCI)
+- Peripheral vascular interventions requiring catheter-based access
+
+4. CONTRAINDICATIONS
+Contraindicated in:
+- Patients with known hypersensitivity to device materials (polyurethane, nylon)
+- Patients with severe peripheral vascular disease where catheter advancement may
+  cause vessel damage
+
+5. EU MDR CLASSIFICATION AND RULE
+The SurgiFlow Catheter is classified as Class IIb under Rule 8 of Annex VIII of
+EU MDR 2017/745. This classification is based on the device being an invasive device
+intended for short-term use and intended to be connected to an active medical device.
+
+6. NOTIFIED BODY
+Conformity assessment was performed by BSI Group The Netherlands BV, Notified Body
+number 2797, under EU MDR 2017/745.
+
+7. STERILITY AND SINGLE USE
+The device is supplied sterile (EO sterilisation). It is intended for single use only
+and must not be resterilised or reused. Shelf life: 3 years from manufacture date.
+
+8. UDI
+Basic UDI-DI: SurgiFlow Catheter Family
+GTIN/UDI-DI for SFC-200: 00123456789012
+
+9. RISK MANAGEMENT FILE REFERENCE
+Risk management activities are documented in RMF-SFC-2024-v4.0, conducted in
+accordance with ISO 14971:2019.
+
+10. IFU REFERENCE
+Instructions for use are provided in document IFU-SFC-2024-EN-v2.1.
+
+11. POST-MARKET CLINICAL FOLLOW-UP (PMCF)
+PMCF activities are defined in PMCF Plan PMCF-SFC-2024-v1.2. The SURGIFLOW-REGISTRY-001
+multi-centre observational registry study is currently enrolling (187/500 patients
+as of December 2023).
+
+12. LITERATURE REVIEW
+A systematic literature search was conducted covering the period January 2023 to
+December 2023 (reference: LITSEARCH-SFC-2024-v1.0). 847 records were screened;
+23 relevant articles were identified. No new safety signals specific to this device
+type were identified.

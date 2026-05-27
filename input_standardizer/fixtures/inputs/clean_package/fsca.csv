@@ -1,0 +1,2 @@
+action_id,reason,device_model,device_name,date_initiated,status,final_fsn_date,regions_affected,uk_market_affected,date_reported_to_mhra,effectiveness
+FSCA-2023-001,Potential for tip detachment under high torque conditions,SFC-200,SurgiFlow Catheter,2023-11-01,closed,2023-11-08,"EU, UK",Yes,2023-11-09,Effective - no further incidents post-recall

@@ -1,0 +1,12 @@
+# PSUR Input Standardizer — Python dependencies
+#
+# Required
+openpyxl>=3.1.0          # XLSX reading
+#
+# Optional — document extraction
+python-docx>=1.1.0       # DOCX text extraction
+pdfplumber>=0.11.0       # PDF text extraction (preferred)
+# pymupdf>=1.24.0        # PDF alternative (pip install pymupdf)
+#
+# Optional — LLM-assisted classification and extraction
+anthropic>=0.28.0        # Claude API (requires ANTHROPIC_API_KEY)

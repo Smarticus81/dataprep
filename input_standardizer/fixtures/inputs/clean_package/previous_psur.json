@@ -1,0 +1,13 @@
+{
+  "period": "2023-01-01 to 2023-12-31",
+  "cadence": "Annual",
+  "device_name": "SurgiFlow Catheter",
+  "manufacturer": "MedDevice International Ltd",
+  "prior_actions": "CAPA-2023-001 (tip bonding improvement) closed and verified effective. FSCA-2023-001 initiated and completed. No open corrective actions carried forward.",
+  "complaint_summary": "12 complaints received in 2023. 3 serious (2 tip detachments, 1 pressure failure). Complaint rate 0.008 per 1000 units sold. All investigated and closed.",
+  "serious_incidents_count": 3,
+  "trend_data": "Tip detachment rate declined following FSCA-2023-001 field action. No new trends identified in Q4 2023.",
+  "sales_data": "1,580 units sold in 2023 across EU and UK markets.",
+  "notified_body_review": "Periodic surveillance audit conducted by BSI NB 2797 in October 2023. No major non-conformities raised.",
+  "sections": "1. Device and Manufacturer Details; 2. PMS Activities Summary; 3. Complaint Analysis; 4. Serious Incident Analysis; 5. FSCA Summary; 6. CAPA Status; 7. Benefit-Risk Conclusion; 8. Conclusions and Forward Actions"
+}

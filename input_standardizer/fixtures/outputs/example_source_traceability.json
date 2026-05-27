@@ -1,0 +1,112 @@
+{
+  "complaints.csv": {
+    "rows": [
+      {
+        "row_index": 0,
+        "fields": {
+          "complaint_number": {
+            "canonical_file": "complaints.csv",
+            "canonical_field": "complaint_number",
+            "source_file": "CustomerComplaints_Report_2024.csv",
+            "source_location": "row 2, col 'Complaint #'",
+            "source_key_or_excerpt": "CMP-2024-001",
+            "transform_applied": "str_normalize",
+            "confidence": 0.98,
+            "llm_used": false,
+            "notes": null
+          },
+          "date": {
+            "canonical_file": "complaints.csv",
+            "canonical_field": "date",
+            "source_file": "CustomerComplaints_Report_2024.csv",
+            "source_location": "row 2, col 'Date Received'",
+            "source_key_or_excerpt": "20/01/2024",
+            "transform_applied": "date_iso",
+            "confidence": 0.98,
+            "llm_used": false,
+            "notes": null
+          },
+          "serious": {
+            "canonical_file": "complaints.csv",
+            "canonical_field": "serious",
+            "source_file": "CustomerComplaints_Report_2024.csv",
+            "source_location": "row 2, col 'Serious Event'",
+            "source_key_or_excerpt": "Y",
+            "transform_applied": "bool_normalize",
+            "confidence": 0.98,
+            "llm_used": false,
+            "notes": null
+          }
+        }
+      }
+    ]
+  },
+  "device_context.json": {
+    "fields": {
+      "eu_mdr_classification_and_rule": {
+        "canonical_file": "device_context.json",
+        "canonical_field": "eu_mdr_classification_and_rule",
+        "source_file": "device_context.json",
+        "source_location": "key 'eu_mdr_classification_and_rule'",
+        "source_key_or_excerpt": "Class IIb, Rule 8",
+        "transform_applied": "str_normalize",
+        "confidence": 0.98,
+        "llm_used": false,
+        "notes": null
+      },
+      "intended_purpose": {
+        "canonical_file": "device_context.json",
+        "canonical_field": "intended_purpose",
+        "source_file": "CER_SurgiFlow_v3.1.txt",
+        "source_location": "document text",
+        "source_key_or_excerpt": "intended to provide vascular access for the delivery of therapeutic agents",
+        "transform_applied": "llm_document_extraction",
+        "confidence": 0.88,
+        "llm_used": true,
+        "notes": null
+      }
+    }
+  },
+  "sales.csv": {
+    "rows": [
+      {
+        "row_index": 0,
+        "fields": {
+          "country": {
+            "canonical_file": "sales.csv",
+            "canonical_field": "country",
+            "source_file": "SurgiFlow_Sales_Data_Q1Q2_2024.csv",
+            "source_location": "row 6, col 'Country of Destination'",
+            "source_key_or_excerpt": "UK",
+            "transform_applied": "country_normalize",
+            "confidence": 0.95,
+            "llm_used": false,
+            "notes": null
+          },
+          "date": {
+            "canonical_file": "sales.csv",
+            "canonical_field": "date",
+            "source_file": "SurgiFlow_Sales_Data_Q1Q2_2024.csv",
+            "source_location": "row 6, col 'Ship Date'",
+            "source_key_or_excerpt": "15/01/2024",
+            "transform_applied": "date_iso",
+            "confidence": 0.95,
+            "llm_used": false,
+            "notes": null
+          },
+          "region": {
+            "canonical_file": "sales.csv",
+            "canonical_field": "region",
+            "source_file": "SurgiFlow_Sales_Data_Q1Q2_2024.csv",
+            "source_location": "derived from country 'United Kingdom'",
+            "source_key_or_excerpt": "United Kingdom",
+            "transform_applied": "country_to_region_derivation",
+            "confidence": 0.85,
+            "llm_used": false,
+            "notes": "Region derived from country lookup table."
+          }
+        }
+      }
+    ]
+  }
+}

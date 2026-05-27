@@ -1,0 +1,3 @@
+event_id,date,device_model,device_name,external_source,description,narrative,event_type,serious,outcome
+MAUDE-2023-00112,2023-07-14,SFC-200,SurgiFlow Catheter,MAUDE,Catheter tip separated during procedure,Operator reported tip detachment during coronary angiography. Device retrieved endoscopically. No patient harm.,Malfunction,Yes,No injury
+MAUDE-2023-00198,2023-09-22,SFC-200,SurgiFlow Catheter,MAUDE,Device packaging damaged on receipt,Packaging sterility barrier compromised. Device not used.,Malfunction,No,Device not used

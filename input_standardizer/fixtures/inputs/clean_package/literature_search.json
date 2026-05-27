@@ -1,0 +1,12 @@
+{
+  "reference": "LITSEARCH-SFC-2024-v1.0",
+  "search_period": "2023-01-01 to 2023-12-31",
+  "methodology": "Systematic search of PubMed, EMBASE, and Cochrane Library using MeSH terms: 'catheter', 'percutaneous coronary intervention', 'vascular access', 'catheter-related complications'. PICO framework applied.",
+  "records_screened": 847,
+  "relevant_articles_identified": 23,
+  "summary_of_new_data_performance_or_safety": "23 relevant articles identified. No new safety signals identified specific to the SurgiFlow Catheter design. Published complication rates for similar catheters align with observed complaint rates.",
+  "newly_observed_uses": "No off-label or newly observed uses identified in literature.",
+  "previously_unassessed_risks": "No previously unidentified risks identified.",
+  "state_of_the_art_changes": "Two new hydrophilic coating formulations published in 2023 demonstrating improved trackability. No mandatory design change indicated.",
+  "comparison_with_similar_devices": "Comparable catheters from three competitors reviewed. Tip detachment rate for SurgiFlow is within the published range for the device category."
+}

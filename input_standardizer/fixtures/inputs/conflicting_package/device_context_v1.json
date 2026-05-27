@@ -1,0 +1,14 @@
+{
+  "device_trade_names": "SurgiFlow Catheter",
+  "eu_mdr_classification_and_rule": "Class IIb, Rule 8",
+  "intended_purpose": "Vascular access for interventional procedures.",
+  "indications_for_use": "Adult patients undergoing PCI and coronary angiography.",
+  "target_patient_population": "Adults 18+",
+  "intended_user_profile": "Interventional cardiologists.",
+  "basic_udi_di_or_device_family_name": "SurgiFlow Family",
+  "model_or_catalog_numbers": "SFC-200",
+  "notified_body_name_and_id": "BSI NB 2797",
+  "sterility_status": "Sterile EO",
+  "single_use_or_reusable": "Single use",
+  "device_description": "Single-use vascular catheter."
+}

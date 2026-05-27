@@ -1,0 +1,14 @@
+{
+  "device_name": "SurgiFlow Catheter",
+  "device_classification": "Class IIb",
+  "proactive_activities": "Annual literature search; PMCF registry study (ongoing); state-of-the-art review; EUDAMED/MAUDE database monitoring quarterly",
+  "reactive_activities": "Complaint handling per SOP-QMS-015; vigilance reporting per SOP-REG-008; FSCA management per SOP-REG-012; trend analysis monthly",
+  "psur_cadence": "Annual",
+  "pms_plan_version": "2.0",
+  "pms_plan_date": "2024-01-01",
+  "trend_reporting_thresholds": "Complaint rate > 0.02 per 1000 units triggers trend review; serious incident rate > 0.005 per 1000 units triggers immediate investigation",
+  "complaint_handling_summary": "All complaints investigated within 30 days; serious complaints within 5 working days. MDR assessment performed for all serious events.",
+  "pmcf_plan_reference": "PMCF-SFC-2024-v1.2",
+  "pmcf_activities": "SURGIFLOW-REGISTRY-001: Multi-centre observational registry study; annual literature search; comparison with similar devices",
+  "associated_documents": "RMF-SFC-2024-v4.0; CER-SFC-2024-v3.1; PMCF-SFC-2024-v1.2; IFU-SFC-2024-EN-v2.1"
+}

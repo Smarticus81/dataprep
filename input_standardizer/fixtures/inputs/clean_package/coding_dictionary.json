@@ -1,0 +1,15 @@
+{
+  "AnnexA": {
+    "2682": "Fluid/gas leakage",
+    "2993": "Device component separation/detachment",
+    "3189": "Packaging integrity failure",
+    "2407": "Material integrity problem"
+  },
+  "AnnexF": {
+    "1": "No consequences or impact",
+    "2": "Injury to operator",
+    "3": "Injury to patient",
+    "4": "Serious injury to patient",
+    "5": "Death"
+  }
+}

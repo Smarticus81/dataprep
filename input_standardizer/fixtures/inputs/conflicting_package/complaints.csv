@@ -1,0 +1,4 @@
+complaint_number,date,description,serious
+CMP-2024-001,2024-01-20,Pressure failure,Yes
+CMP-2024-001,2024-01-20,Pressure failure - duplicate entry,Yes
+CMP-2024-002,2024-03-10,Tip detachment,Yes

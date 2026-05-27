@@ -1,0 +1,5 @@
+complaint_number,date,description,serious,country,device_model,harm,imdrf_code,patient_outcome,reportable,lot_or_batch
+CMP-2024-001,2024-01-20,Device failed to maintain pressure during procedure,Yes,United Kingdom,SFC-200,Delayed treatment,2682,Resolved,Yes,LOT-A001
+CMP-2024-002,2024-02-05,Packaging integrity issue noted on arrival,No,Germany,SFC-200,None,2993,No injury,No,LOT-A002
+CMP-2024-003,2024-02-18,Unusual resistance during catheter advancement,No,France,SFC-200,Minor discomfort,2682,Resolved,No,LOT-A001
+CMP-2024-004,2024-03-10,Device tip detached during use,Yes,United Kingdom,SFC-200,Patient injury - minor laceration,2993,Resolved,Yes,LOT-A003

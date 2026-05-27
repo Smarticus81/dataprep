@@ -1,0 +1,65 @@
+{
+  "total_issues": 6,
+  "issues": [
+    {
+      "severity": "CRITICAL",
+      "code": "IS-020",
+      "title": "Required canonical field is missing",
+      "detail": "Required field 'serious' is missing or empty in 'complaints.csv'. The 'serious' field is required to distinguish serious incidents from non-serious complaints.",
+      "source_files": ["CustomerComplaints_Report_2024.csv"],
+      "canonical_target": "complaints.csv",
+      "field_name": "serious",
+      "suggested_action": "Ensure the source complaints file includes a 'Serious (Y/N)' or equivalent column."
+    },
+    {
+      "severity": "MAJOR",
+      "code": "IS-002",
+      "title": "Multiple candidate files for same canonical target",
+      "detail": "Multiple source files classified as 'device_context': ['device_context_v1.json', 'device_context_v2.json']. All will be merged; verify there are no conflicts.",
+      "source_files": ["device_context_v1.json", "device_context_v2.json"],
+      "canonical_target": "device_context.json",
+      "field_name": null,
+      "suggested_action": "Provide a single authoritative source file for each data type."
+    },
+    {
+      "severity": "MAJOR",
+      "code": "IS-025",
+      "title": "Conflicting values for the same field across sources",
+      "detail": "Conflict for 'eu_mdr_classification_and_rule': structured='Class IIb, Rule 8' vs document='Class IIa, Rule 7'. Keeping structured value. Human review required.",
+      "source_files": ["device_context_v2.json"],
+      "canonical_target": "device_context.json",
+      "field_name": "eu_mdr_classification_and_rule",
+      "suggested_action": "Verify which classification is authoritative and update the source files."
+    },
+    {
+      "severity": "MINOR",
+      "code": "IS-050",
+      "title": "Duplicate complaint identifiers detected",
+      "detail": "Duplicate complaint_number 'CMP-2024-001' found. Keeping first occurrence (row 0).",
+      "source_files": ["CustomerComplaints_Report_2024.csv"],
+      "canonical_target": "complaints.csv",
+      "field_name": "complaint_number",
+      "suggested_action": "Review source data for duplicate entries."
+    },
+    {
+      "severity": "MINOR",
+      "code": "IS-031",
+      "title": "Country value could not be normalized",
+      "detail": "Country value 'NL' could not be normalized to a known canonical country name. Passed through as-is.",
+      "source_files": ["SurgiFlow_Sales_Data_Q1Q2_2024.csv"],
+      "canonical_target": "sales.csv",
+      "field_name": "country",
+      "suggested_action": "Use ISO 3166-1 country name or 2-letter code."
+    },
+    {
+      "severity": "INFO",
+      "code": "IS-026",
+      "title": "Field value inferred from unstructured document text",
+      "detail": "Field 'intended_purpose' inferred from document 'CER_SurgiFlow_v3.1.txt' via LLM extraction (confidence=0.88).",
+      "source_files": ["CER_SurgiFlow_v3.1.txt"],
+      "canonical_target": "device_context.json",
+      "field_name": "intended_purpose",
+      "suggested_action": null
+    }
+  ]
+}

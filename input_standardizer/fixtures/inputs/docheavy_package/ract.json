@@ -1,0 +1,17 @@
+{
+  "hazards": [
+    {
+      "hazard_id": "H-001",
+      "hazard_description": "Catheter tip detachment",
+      "harm": "Vessel injury",
+      "severity": "4",
+      "probability_before": "3",
+      "risk_level_before": "High",
+      "risk_control": "Enhanced bonding",
+      "probability_after": "1",
+      "risk_level_after": "Low",
+      "expected_rate": "0.0001",
+      "max_expected_rate": "0.0005"
+    }
+  ]
+}
