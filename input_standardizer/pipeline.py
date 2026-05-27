@@ -37,7 +37,7 @@ from .mappers import (
     sales_mapper,
 )
 from .readiness_gate import evaluate as evaluate_readiness
-from .schema_registry import ALL_SCHEMAS
+from .schema_registry import ALL_SCHEMAS, CanonicalSchema
 from .traceability_model import TraceabilityStore
 
 logger = logging.getLogger(__name__)
@@ -74,6 +74,12 @@ def _extract(clf: FileClassification) -> List[ExtractionResult]:
             results.append(read_json(clf.source_path, ctype))
         elif ext in ("docx", "doc", "pdf"):
             results.append(read_document(clf.source_path, ctype))
+        elif ext == "txt":
+            extraction = read_json(clf.source_path, ctype)
+            if extraction.rows and not any("ERROR" in n for n in extraction.extraction_notes):
+                results.append(extraction)
+            else:
+                results.append(read_document(clf.source_path, ctype))
         else:
             logger.warning(f"No extractor for extension '{ext}': {clf.source_path}")
     except Exception as e:
@@ -265,6 +271,41 @@ def run(
     all_issues.extend(_collect_issues_from_output(out))
 
     # -----------------------------------------------------------------------
+    # 3b. Stub outputs for missing canonical targets
+    # -----------------------------------------------------------------------
+    produced_files_pre = {o.canonical_file for o in mapper_outputs if o.rows}
+    stubbed_files: Set[str] = set()
+    for schema in ALL_SCHEMAS.values():
+        if schema.filename not in produced_files_pre:
+            stub = _make_stub_output(schema)
+            stubbed_files.add(schema.filename)
+            existing = next(
+                (o for o in mapper_outputs if o.canonical_file == schema.filename), None
+            )
+            if existing is not None:
+                existing.rows = stub.rows
+                existing.completeness = stub.completeness
+                existing.notes = stub.notes
+            else:
+                mapper_outputs.append(stub)
+
+    if stubbed_files:
+        all_issues = [
+            i for i in all_issues
+            if not (i.code == IssueCode.MISSING_REQUIRED_TARGET
+                    and i.canonical_target in stubbed_files)
+        ]
+        for fname in sorted(stubbed_files):
+            all_issues.append(make_issue(
+                Severity.INFO,
+                IssueCode.MISSING_STRONGLY_RECOMMENDED_TARGET,
+                f"No source data found for '{fname}'. "
+                f"Stub output with 'Information not provided' was generated.",
+                canonical_target=fname,
+                suggested_action=f"Provide source data for '{fname}' for a complete PSUR package.",
+            ))
+
+    # -----------------------------------------------------------------------
     # 4. Readiness gate
     # -----------------------------------------------------------------------
     logger.info("Phase 4: Readiness gate")
@@ -292,6 +333,23 @@ def run(
         logger.info(f"  Wrote: {path}")
 
     return readiness.ready_for_psur_pipeline, output_dir
+
+
+_STUB_PLACEHOLDER = "Information not provided"
+
+
+def _make_stub_output(schema: CanonicalSchema) -> MapperOutput:
+    """Create a single-row stub output for a schema with no source data."""
+    row = {f.name: _STUB_PLACEHOLDER for f in schema.fields}
+    return MapperOutput(
+        canonical_file=schema.filename,
+        rows=[row],
+        mapping_decisions=[],
+        traces=[],
+        completeness=1.0,
+        notes=[f"No source data found for '{schema.filename}'. "
+               f"Stub row with placeholder values generated."],
+    )
 
 
 def _collect_issues_from_output(output: MapperOutput) -> List[PreparerIssue]:

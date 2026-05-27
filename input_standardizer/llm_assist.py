@@ -19,6 +19,8 @@ from __future__ import annotations
 import json
 import logging
 import os
+import re
+from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
 from .contracts import CanonicalType
@@ -26,20 +28,70 @@ from .schema_registry import CanonicalSchema
 
 logger = logging.getLogger(__name__)
 
+try:
+    from dotenv import load_dotenv
+
+    load_dotenv(Path(__file__).resolve().parent.parent / ".env")
+except ImportError:
+    pass
+
 _MODEL = "claude-sonnet-4-6"
 _MAX_TOKENS = 1024
 _LLM_AVAILABLE = False
+_client = None
 
 try:
     import anthropic  # type: ignore
-    _client = anthropic.Anthropic(api_key=os.environ.get("ANTHROPIC_API_KEY", ""))
-    _LLM_AVAILABLE = True
+
+    _api_key = os.environ.get("ANTHROPIC_API_KEY", "").strip()
+    if _api_key:
+        _client = anthropic.Anthropic(api_key=_api_key)
+        _LLM_AVAILABLE = True
+    else:
+        logger.info(
+            "ANTHROPIC_API_KEY not set. LLM-assisted classification/extraction disabled. "
+            "Add your key to .env in the project root."
+        )
 except ImportError:
-    _client = None
     logger.warning(
         "anthropic SDK not installed. LLM-assisted classification/extraction disabled. "
         "Install with: pip install anthropic"
     )
+
+
+def _collect_text(content: Any) -> str:
+    parts: List[str] = []
+    for block in content:
+        text = getattr(block, "text", None)
+        if text:
+            parts.append(text)
+    return "\n".join(parts).strip()
+
+
+def _parse_json_object(raw: str) -> Dict[str, Any]:
+    text = raw.strip()
+    if not text:
+        raise ValueError("Empty LLM response")
+
+    fence_match = re.match(r"^```(?:json)?\s*\n?(.*?)\n?```\s*$", text, re.DOTALL | re.IGNORECASE)
+    if fence_match:
+        text = fence_match.group(1).strip()
+
+    try:
+        parsed = json.loads(text)
+        if isinstance(parsed, dict):
+            return parsed
+    except json.JSONDecodeError:
+        pass
+
+    start = text.find("{")
+    end = text.rfind("}")
+    if start != -1 and end > start:
+        parsed = json.loads(text[start : end + 1])
+        if isinstance(parsed, dict):
+            return parsed
+
+    raise json.JSONDecodeError("No JSON object in LLM response", text, 0)
 
 
 def _call_llm(system: str, user: str) -> str:
@@ -51,7 +103,21 @@ def _call_llm(system: str, user: str) -> str:
         system=system,
         messages=[{"role": "user", "content": user}],
     )
-    return message.content[0].text.strip()
+    return _collect_text(message.content)
+
+
+def _call_llm_json(system: str, user: str) -> Dict[str, Any]:
+    raw = _call_llm(
+        f"{system} Return raw JSON only. No markdown fences, labels, or commentary.",
+        user,
+    )
+    if not raw.strip():
+        raise ValueError("Empty LLM JSON response")
+    try:
+        return _parse_json_object(raw)
+    except (json.JSONDecodeError, ValueError) as exc:
+        logger.debug("LLM JSON parse failed for response snippet: %r", raw[:500])
+        raise exc
 
 
 def classify_file(
@@ -83,8 +149,7 @@ def classify_file(
         "Classify this file. Return only JSON."
     )
     try:
-        raw = _call_llm(system, user)
-        obj = json.loads(raw)
+        obj = _call_llm_json(system, user)
         ct = str(obj.get("type", "unknown"))
         conf = float(obj.get("confidence", 0.3))
         return ct, min(max(conf, 0.0), 1.0)
@@ -118,14 +183,14 @@ def map_header_to_field(
         "Return only JSON."
     )
     try:
-        raw = _call_llm(system, user)
-        obj = json.loads(raw)
+        obj = _call_llm_json(system, user)
         field = obj.get("field")
         conf = float(obj.get("confidence", 0.3))
         if field not in field_names:
             return None, 0.0
         return field, min(max(conf, 0.0), 1.0)
     except Exception as e:
+        logger.debug("LLM map_header_to_field raw response unavailable: %s", e)
         logger.warning(f"LLM map_header_to_field failed: {e}")
         return None, 0.0
 
@@ -165,8 +230,7 @@ def extract_document_fields(
         "Return only JSON."
     )
     try:
-        raw = _call_llm(system, user)
-        obj = json.loads(raw)
+        obj = _call_llm_json(system, user)
         result: Dict[str, Any] = {}
         for f in target_fields:
             entry = obj.get(f, {})

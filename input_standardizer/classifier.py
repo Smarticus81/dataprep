@@ -57,6 +57,8 @@ _FILENAME_PATTERNS: List[Tuple[re.Pattern, CanonicalType]] = [
     (re.compile(r"\bdevice[_\s]?info\b", re.I), CanonicalType.DEVICE_CONTEXT),
     (re.compile(r"\bproduct[_\s]?profile\b", re.I), CanonicalType.DEVICE_CONTEXT),
     (re.compile(r"\bdevice[_\s]?profile\b", re.I), CanonicalType.DEVICE_CONTEXT),
+    (re.compile(r"^context$", re.I), CanonicalType.DEVICE_CONTEXT),
+    (re.compile(r"\btechnical[_\s]?doc(umentation)?\b", re.I), CanonicalType.DEVICE_CONTEXT),
     # RACT
     (re.compile(r"\bract\b", re.I), CanonicalType.RACT),
     (re.compile(r"\brisk[_\s]?acceptability\b", re.I), CanonicalType.RACT),
@@ -248,7 +250,7 @@ def classify_file(
             except Exception as e:
                 evidence.append(f"XLSX read error: {e}")
 
-    elif ext == "json":
+    elif ext in ("json", "txt"):
         try:
             extraction = read_json(path)
             if extraction.source_type != CanonicalType.UNKNOWN:
@@ -264,7 +266,35 @@ def classify_file(
             if extraction.headers:
                 evidence.append(f"Top-level JSON keys: {extraction.headers[:10]}")
         except Exception as e:
-            evidence.append(f"JSON read error: {e}")
+            if ext == "json":
+                evidence.append(f"JSON read error: {e}")
+
+        if ext == "txt" and not any("JSON keys matched" in e for e in evidence):
+            from .extractors.docx_pdf import read_document
+            doc = read_document(path)
+            if doc.raw_text_snippets:
+                sections = list(doc.raw_text_snippets.keys())
+                evidence.append(f"Document sections detected: {sections}")
+                if "pmcf_details" in sections:
+                    ct = CanonicalType.PMCF
+                elif "literature_review" in sections:
+                    ct = CanonicalType.LITERATURE
+                elif any(s in sections for s in ("device_description", "intended_purpose", "notified_body")):
+                    ct = CanonicalType.CER
+                elif "rmf_reference" in sections and len(sections) < 4:
+                    ct = CanonicalType.RMF
+                elif "ifu_reference" in sections:
+                    ct = CanonicalType.IFU
+                else:
+                    ct = CanonicalType.CER
+                return FileClassification(
+                    source_path=path,
+                    extension=ext,
+                    detected_type=ct,
+                    confidence=0.60,
+                    classifier_method=ClassifierMethod.CONTENT_HEURISTIC,
+                    evidence=evidence,
+                )
 
     elif ext in ("docx", "doc", "pdf"):
         # 5. Document content heuristics
@@ -342,7 +372,7 @@ def discover_and_classify(
 ) -> List[FileClassification]:
     """Recursively scan input_dir and classify every supported file."""
     supported_extensions = {
-        "csv", "xlsx", "xls", "json", "docx", "doc", "pdf",
+        "csv", "xlsx", "xls", "json", "docx", "doc", "pdf", "txt",
     }
     classifications: List[FileClassification] = []
 

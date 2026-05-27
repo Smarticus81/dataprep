@@ -10,13 +10,14 @@ Special rules:
 
 from __future__ import annotations
 
-from typing import Any, Dict, List, Optional
+import json
+from typing import Any, Dict, List, Optional, Tuple
 
 from ..contracts import CanonicalType, ExtractionResult, MapperOutput
 from ..issue_model import IssueCode, Severity, make_issue
 from ..schema_registry import DEVICE_CONTEXT_SCHEMA
 from ..traceability_model import TraceabilityStore, make_trace
-from ..value_normalizers import normalize_value, is_placeholder
+from ..value_normalizers import normalize_value, normalize_str, is_placeholder
 from ._base import check_required_fields, compute_completeness
 
 
@@ -36,6 +37,286 @@ _SECTION_TO_FIELD: Dict[str, str] = {
     "sterility": "sterility_status",
 }
 
+# JSON path resolvers: canonical_field -> list of (json_path_fn, formatter_fn)
+# Each json_path_fn takes the source dict and returns a raw value or None.
+# The formatter_fn converts it to a clean string.
+
+def _join_list(items: list, sep: str = "; ") -> str:
+    return sep.join(str(i) for i in items if i)
+
+
+def _resolve_trade_names(src: dict) -> Optional[str]:
+    dd = src.get("device_description", {})
+    if isinstance(dd, dict):
+        products = dd.get("products", [])
+        if isinstance(products, list):
+            names = [p.get("product_name", "") for p in products if isinstance(p, dict)]
+            if names:
+                return _join_list(names)
+        stmt = dd.get("trade_name_statement")
+        if stmt:
+            return normalize_str(stmt)
+    return None
+
+
+def _resolve_description(src: dict) -> Optional[str]:
+    dd = src.get("device_description", {})
+    if isinstance(dd, dict):
+        stmt = dd.get("trade_name_statement", "")
+        modes = dd.get("mode_of_action_summary", [])
+        parts = []
+        if stmt:
+            parts.append(normalize_str(stmt))
+        if isinstance(modes, list) and modes:
+            parts.append(_join_list(modes))
+        if parts:
+            return " ".join(parts)
+    return None
+
+
+def _resolve_intended_purpose(src: dict) -> Optional[str]:
+    dd = src.get("device_description", {})
+    if isinstance(dd, dict):
+        products = dd.get("products", [])
+        if isinstance(products, list):
+            uses = [f"{p.get('product_name', '?')}: {p.get('intended_use', '')}"
+                    for p in products if isinstance(p, dict) and p.get("intended_use")]
+            if uses:
+                return _join_list(uses)
+    return None
+
+
+def _resolve_indications(src: dict) -> Optional[str]:
+    dd = src.get("device_description", {})
+    if isinstance(dd, dict):
+        pop = dd.get("intended_patient_population", {})
+        if isinstance(pop, dict):
+            general = pop.get("general", "")
+            if general:
+                return normalize_str(general)
+        products = dd.get("products", [])
+        if isinstance(products, list):
+            uses = [p.get("intended_use", "") for p in products if isinstance(p, dict)]
+            if uses:
+                return _join_list(uses)
+    return None
+
+
+def _resolve_patient_population(src: dict) -> Optional[str]:
+    dd = src.get("device_description", {})
+    if isinstance(dd, dict):
+        pop = dd.get("intended_patient_population", {})
+        if isinstance(pop, dict):
+            parts = []
+            if pop.get("general"):
+                parts.append(pop["general"])
+            specific = pop.get("product_specific", {})
+            if isinstance(specific, dict):
+                parts.extend(f"{k}: {v}" for k, v in specific.items())
+            if parts:
+                return _join_list(parts)
+    return None
+
+
+def _resolve_intended_users(src: dict) -> Optional[str]:
+    dd = src.get("device_description", {})
+    if isinstance(dd, dict):
+        users = dd.get("intended_users", [])
+        if isinstance(users, list) and users:
+            return _join_list(users)
+    return None
+
+
+def _resolve_udi(src: dict) -> Optional[str]:
+    udi = src.get("udi", {})
+    if isinstance(udi, dict):
+        ids = udi.get("table_4_device_identifiers", [])
+        if isinstance(ids, list) and ids:
+            parts = [f"{d.get('product_description', '?')}: {d.get('device_identifier_di', '?')}"
+                     for d in ids if isinstance(d, dict)]
+            return _join_list(parts)
+    dd = src.get("device_description", {})
+    if isinstance(dd, dict):
+        basic = dd.get("basic_udi_di", {})
+        if isinstance(basic, dict):
+            return basic.get("basic_udi_di", basic.get("gmn", ""))
+    return None
+
+
+def _resolve_model_numbers(src: dict) -> Optional[str]:
+    pvp = src.get("product_variants_and_part_numbers", {})
+    if isinstance(pvp, dict):
+        parts = pvp.get("table_1_part_numbers", [])
+        if isinstance(parts, list) and parts:
+            nums = [f"{p.get('part_number', '?')} ({p.get('product_name', '?')})"
+                    for p in parts if isinstance(p, dict)]
+            return _join_list(nums)
+    udi = src.get("udi", {})
+    if isinstance(udi, dict):
+        ids = udi.get("table_4_device_identifiers", [])
+        if isinstance(ids, list) and ids:
+            nums = [d.get("model_version_number", "") for d in ids if isinstance(d, dict)]
+            return _join_list(nums)
+    return None
+
+
+def _resolve_classification(src: dict) -> Optional[str]:
+    dd = src.get("device_description", {})
+    if isinstance(dd, dict):
+        clf = dd.get("classification", {})
+        if isinstance(clf, dict):
+            eu = clf.get("eu_mdr", {})
+            if isinstance(eu, dict):
+                parts = []
+                if eu.get("class"):
+                    parts.append(f"Class {eu['class']}")
+                if eu.get("rule"):
+                    parts.append(f"Rule {eu['rule']}")
+                if eu.get("regulation"):
+                    parts.append(eu["regulation"])
+                if parts:
+                    return ", ".join(parts)
+    return None
+
+
+def _resolve_notified_body(src: dict) -> Optional[str]:
+    ai = src.get("administrative_information", {})
+    if isinstance(ai, dict):
+        nb = ai.get("notified_body", {})
+        if isinstance(nb, dict):
+            name = nb.get("company_name", "")
+            num = nb.get("notified_body_number", "")
+            if name:
+                return f"{name} (NB {num})" if num else name
+    return None
+
+
+def _resolve_sterility(src: dict) -> Optional[str]:
+    dd = src.get("device_description", {})
+    if isinstance(dd, dict):
+        chars = dd.get("device_characteristics", {})
+        if isinstance(chars, dict):
+            s = chars.get("sterility")
+            if s:
+                return normalize_str(s)
+        sterilization = dd.get("sterilization", {})
+        if isinstance(sterilization, dict) and sterilization.get("summary"):
+            return normalize_str(sterilization["summary"])
+    return None
+
+
+def _resolve_single_use(src: dict) -> Optional[str]:
+    dd = src.get("device_description", {})
+    if isinstance(dd, dict):
+        chars = dd.get("device_characteristics", {})
+        if isinstance(chars, dict) and chars.get("reusability"):
+            return normalize_str(chars["reusability"])
+    return None
+
+
+def _resolve_contraindications(src: dict) -> Optional[str]:
+    dd = src.get("device_description", {})
+    if isinstance(dd, dict):
+        ci = dd.get("contraindications", {})
+        if isinstance(ci, dict) and ci.get("summary"):
+            return normalize_str(ci["summary"])
+    wp = src.get("warnings_and_precautions", {})
+    if isinstance(wp, dict):
+        cw = wp.get("common_warnings", [])
+        if isinstance(cw, list) and cw:
+            return _join_list(cw)
+    return None
+
+
+def _resolve_gmdn(src: dict) -> Optional[str]:
+    dd = src.get("device_description", {})
+    if isinstance(dd, dict):
+        products = dd.get("products", [])
+        if isinstance(products, list):
+            codes = set()
+            for p in products:
+                if isinstance(p, dict):
+                    gmdn = p.get("gmdn", {})
+                    if isinstance(gmdn, dict) and gmdn.get("code"):
+                        codes.add(f"{gmdn['code']} ({gmdn.get('term', '?')})")
+            if codes:
+                return _join_list(sorted(codes))
+    return None
+
+
+def _resolve_market_history(src: dict) -> Optional[str]:
+    dd = src.get("device_description", {})
+    if isinstance(dd, dict):
+        gen = dd.get("generations_and_market_history", {})
+        if isinstance(gen, dict):
+            market = gen.get("market_since", {})
+            parts = []
+            if isinstance(market, dict):
+                if market.get("since_year"):
+                    parts.append(f"On market since {market['since_year']}")
+                if market.get("original_company"):
+                    parts.append(f"originally by {market['original_company']}")
+            if gen.get("previous_generations"):
+                parts.append(gen["previous_generations"])
+            if parts:
+                return "; ".join(parts)
+    return None
+
+
+def _resolve_device_lifetime(src: dict) -> Optional[str]:
+    dd = src.get("device_description", {})
+    if isinstance(dd, dict):
+        sl = dd.get("shelf_life", {})
+        if isinstance(sl, dict) and sl.get("expected_performance_life"):
+            return normalize_str(sl["expected_performance_life"])
+    return None
+
+
+def _resolve_rmf(src: dict) -> Optional[str]:
+    rm = src.get("risk_management", {})
+    if isinstance(rm, dict) and rm.get("rmf_document_id"):
+        return rm["rmf_document_id"]
+    return None
+
+
+def _resolve_pms_plan(src: dict) -> Optional[str]:
+    pms = src.get("post_market_surveillance", {})
+    if isinstance(pms, dict):
+        docs = pms.get("pms_documents", [])
+        if isinstance(docs, list) and docs:
+            return _join_list(docs)
+    return None
+
+
+def _resolve_cer_number(src: dict) -> Optional[str]:
+    ce = src.get("clinical_evaluation", {})
+    if isinstance(ce, dict) and ce.get("clinical_evaluation_report_document_id"):
+        return ce["clinical_evaluation_report_document_id"]
+    return None
+
+
+_NESTED_RESOLVERS: Dict[str, Any] = {
+    "device_trade_names": _resolve_trade_names,
+    "device_description": _resolve_description,
+    "intended_purpose": _resolve_intended_purpose,
+    "indications_for_use": _resolve_indications,
+    "target_patient_population": _resolve_patient_population,
+    "intended_user_profile": _resolve_intended_users,
+    "basic_udi_di_or_device_family_name": _resolve_udi,
+    "model_or_catalog_numbers": _resolve_model_numbers,
+    "eu_mdr_classification_and_rule": _resolve_classification,
+    "notified_body_name_and_id": _resolve_notified_body,
+    "sterility_status": _resolve_sterility,
+    "single_use_or_reusable": _resolve_single_use,
+    "contraindications": _resolve_contraindications,
+    "gmdn_code": _resolve_gmdn,
+    "market_history": _resolve_market_history,
+    "device_lifetime": _resolve_device_lifetime,
+    "risk_management_file_document_number": _resolve_rmf,
+    "pms_plan_document": _resolve_pms_plan,
+    "cer_document_number_and_version": _resolve_cer_number,
+}
+
 
 def _map_structured_json(
     extraction: ExtractionResult,
@@ -49,10 +330,11 @@ def _map_structured_json(
     aliases = DEVICE_CONTEXT_SCHEMA.all_aliases()
 
     for src_key, value in src.items():
-        # Direct canonical match
         key_lower = src_key.strip().lower()
         canonical_field = aliases.get(key_lower)
         if canonical_field is None:
+            continue
+        if isinstance(value, (dict, list)):
             continue
         fdef = DEVICE_CONTEXT_SCHEMA.field_by_name(canonical_field)
         if fdef is None:
@@ -69,6 +351,28 @@ def _map_structured_json(
             confidence=0.98,
             llm_used=False,
         ))
+
+    for canonical_field, resolver in _NESTED_RESOLVERS.items():
+        if result.get(canonical_field) and not is_placeholder(result.get(canonical_field)):
+            continue
+        try:
+            resolved = resolver(src)
+        except Exception:
+            continue
+        if resolved is None or is_placeholder(resolved):
+            continue
+        result[canonical_field] = resolved
+        store.add(make_trace(
+            canonical_file=DEVICE_CONTEXT_SCHEMA.filename,
+            canonical_field=canonical_field,
+            source_file=extraction.source_path,
+            source_location=f"nested JSON resolution",
+            source_key_or_excerpt=str(resolved)[:200],
+            transform_applied="nested_json_extraction",
+            confidence=0.95,
+            llm_used=False,
+        ))
+
     return result
 
 
@@ -183,9 +487,9 @@ def run(
     notes: List[str] = []
     canonical: Dict[str, Any] = {}
 
-    # Prefer JSON structured sources
-    json_candidates = [e for e in structured_candidates if e.source_path.endswith(".json")]
-    other_candidates = [e for e in structured_candidates if not e.source_path.endswith(".json")]
+    json_exts = (".json", ".txt")
+    json_candidates = [e for e in structured_candidates if e.source_path.lower().endswith(json_exts)]
+    other_candidates = [e for e in structured_candidates if not e.source_path.lower().endswith(json_exts)]
 
     for extraction in json_candidates + other_candidates:
         mapped = _map_structured_json(extraction, store)

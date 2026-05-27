@@ -179,6 +179,13 @@ def read_document(
         text = _extract_text_docx(path)
     elif ext == "pdf":
         text = _extract_text_pdf(path)
+    elif ext == "txt":
+        try:
+            with open(path, encoding="utf-8") as fh:
+                text = fh.read()
+        except Exception as e:
+            text = ""
+            notes.append(f"TXT read error: {e}")
     else:
         text = ""
         notes.append(f"Unsupported document format: {ext}")

@@ -56,9 +56,9 @@ def _print_readiness_summary(output_dir: str) -> None:
             manifest = json.load(fh)
         readiness = manifest.get("readiness", {})
         print("\n" + "=" * 60)
-        print("PSUR INPUT STANDARDIZER — READINESS SUMMARY")
+        print("PSUR INPUT STANDARDIZER - READINESS SUMMARY")
         print("=" * 60)
-        status = "✓ READY" if readiness.get("ready_for_psur_pipeline") else "✗ NOT READY"
+        status = "READY" if readiness.get("ready_for_psur_pipeline") else "NOT READY"
         print(f"Status:  {status}")
         print(f"Summary: {readiness.get('summary', 'N/A')}")
         counts = manifest.get("issue_counts_by_severity", {})
@@ -91,7 +91,7 @@ def _print_readiness_summary(output_dir: str) -> None:
                 print(f"  [{issue['code']}] {issue['title']}")
                 print(f"    {issue['detail']}")
                 if issue.get("suggested_action"):
-                    print(f"    → {issue['suggested_action']}")
+                    print(f"    -> {issue['suggested_action']}")
             if len(blocking) > 10:
                 print(f"  ... and {len(blocking) - 10} more.")
 
@@ -104,7 +104,7 @@ def _print_readiness_summary(output_dir: str) -> None:
 def main(argv=None) -> int:
     parser = argparse.ArgumentParser(
         prog="python -m input_standardizer.cli",
-        description="PSUR Input Standardizer — transforms raw source packages into "
+        description="PSUR Input Standardizer - transforms raw source packages into "
                     "canonical PSUR input packages.",
     )
     parser.add_argument(

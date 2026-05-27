@@ -9,4 +9,5 @@ pdfplumber>=0.11.0       # PDF text extraction (preferred)
 # pymupdf>=1.24.0        # PDF alternative (pip install pymupdf)
 #
 # Optional — LLM-assisted classification and extraction
+python-dotenv>=1.0.0     # Load ANTHROPIC_API_KEY from .env
 anthropic>=0.28.0        # Claude API (requires ANTHROPIC_API_KEY)
